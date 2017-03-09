@@ -7,13 +7,29 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SimpleTCP;
-using StateMachineManager;
 
 
 namespace SimpleTCPTest
 {
     class Program
     {
+        public class testSM : IStateMachine<int>
+        {
+            private int sum = 0;
+            public int Total = 100;
+
+            public bool ApplyObject(int aInput)
+            {
+                sum += aInput;
+                return sum <= Total;
+            }
+
+            public bool IsFinished()
+            {
+                return sum == Total;
+            }
+        }
+
         public class TestStateMachine : IStateMachine<byte>
         {
             private bool finished;
@@ -38,6 +54,13 @@ namespace SimpleTCPTest
         static void Main(string[] args)
         {
             Console.WriteLine("Version: {0}", SimpleTCP.SimpleConnection.Version);
+
+            var _manager = new StateMachineManager<testSM, int>(() => new testSM());
+
+            var _list = _manager.ApplyObjects(new[] { 2, 8, 90, 1, 1 });
+
+            Console.WriteLine("StateMachineTest {0}", _list.Count == 2 ? "OK" : "FAILED");
+
 
             var testTime = 100;
 
