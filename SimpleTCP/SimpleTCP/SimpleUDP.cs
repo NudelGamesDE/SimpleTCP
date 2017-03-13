@@ -9,7 +9,7 @@ namespace SimpleTCP
         private UdpClient client;
         private int port;
 
-        public Action<byte[], IPEndPoint> ReceiveActionWithEndPoint;
+        public event Action<byte[], IPEndPoint> ReceiveActionWithEndPoint;
 
         public SimpleUDP()
         {
@@ -39,9 +39,8 @@ namespace SimpleTCP
             IPEndPoint _endPoint = new IPEndPoint(IPAddress.Any, port);
             var _data = client.EndReceive(ar, ref _endPoint);
             if (Stoped) return;
-            var _actionSimple = ReceiveAction;
+            ReceivedData(_data);
             var _actionEndPoint = ReceiveActionWithEndPoint;
-            if (_actionSimple != null) _actionSimple(_data);
             if (_actionEndPoint != null) _actionEndPoint(_data, _endPoint);
             StartListening();
         }

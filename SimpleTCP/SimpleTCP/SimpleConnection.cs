@@ -6,22 +6,14 @@ namespace SimpleTCP
 {
     public abstract class SimpleConnection
     {
-        public const string Version = "1.4.5";
+        public const string Version = "1.4.6";
 
         public static Action<string> MessageHandler;
         public static Action<Exception> ExceptionHandler;
 
         public abstract bool Send(byte[] aData);
-        private Action<byte[]> RealReceiveAction;
 
-        public Action<byte[]> ReceiveAction
-        {
-            get
-            {
-                return isPolling ? PollReceiveAction : RealReceiveAction;
-            }
-            set { RealReceiveAction = value; }
-        }
+        public event Action<byte[]> ReceiveAction;
         public virtual bool Connected { get; protected set; }
         public virtual bool Connecting { get; protected set; }
         public bool Stoped { get; private set; }
@@ -76,6 +68,11 @@ namespace SimpleTCP
             }
         }
 
+        protected void ReceivedData(byte[] aData)
+        {
+            var _action = isPolling ? PollReceiveAction : ReceiveAction; ;
+            if (_action != null) _action(aData);
+        }
 
         private static readonly object OpenConnectionsLocker = new object();
         private static readonly List<SimpleConnection> OpenConnections = new List<SimpleConnection>();

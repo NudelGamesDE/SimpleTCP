@@ -68,37 +68,32 @@ namespace SimpleTCPTest
             var _c2m = 0;
             int _sm = 0;
 
-            var _server = new SimpleServer(1807)
+            var _server = new SimpleServer(1807);
+            _server.ReceiveAction += (aData) =>
             {
-                ReceiveAction = aData =>
-                {
-                    Console.WriteLine("Server: " + aData.Aggregate("", (current, v) => current + (char)v));
-                    _sm++;
-                }
+                Console.WriteLine("Server: " + aData.Aggregate("", (current, v) => current + (char)v));
+                _sm++;
             };
 
             Thread.Sleep(testTime);
-            var _client1 = new SimpleClient("127.0.0.1", 1807)
+            var _client1 = new SimpleClient("127.0.0.1", 1807);
+            _client1.ReceiveAction += aData =>
             {
-                ReceiveAction = aData =>
-                {
-                    Console.WriteLine("Client1: " + aData.Aggregate("", (current, v) => current + (char)v));
-                    _c1m++;
-                }
+                Console.WriteLine("Client1: " + aData.Aggregate("", (current, v) => current + (char)v));
+                _c1m++;
             };
+
             Thread.Sleep(testTime);
             _client1.Send(StringToByte("client1 message 1/4"));
             Thread.Sleep(testTime);
             _client1.Send(StringToByte("client1 message 2/4"));
 
             Thread.Sleep(testTime);
-            var _client2 = new SimpleClient("127.0.0.1", 1807)
+            var _client2 = new SimpleClient("127.0.0.1", 1807);
+            _client2.ReceiveAction += aData =>
             {
-                ReceiveAction = aData =>
-                {
-                    Console.WriteLine("Client2: " + aData.Aggregate("", (current, v) => current + (char)v));
-                    _c2m++;
-                }
+                Console.WriteLine("Client2: " + aData.Aggregate("", (current, v) => current + (char)v));
+                _c2m++;
             };
 
             Thread.Sleep(testTime);
@@ -117,7 +112,7 @@ namespace SimpleTCPTest
 
 
             IPEndPoint _testPoint = null;
-            _server.ReceiveActionWithEndPoint = (aData, aEndPoint) =>
+            _server.ReceiveActionWithEndPoint += (aData, aEndPoint) =>
             {
                 _testPoint = aEndPoint;
             };
@@ -134,8 +129,8 @@ namespace SimpleTCPTest
             }
 
             var PollingTestOK = false;
-            _client2.ReceiveAction = null;
-            _server.ReceiveAction = null;
+            //_client2.ReceiveAction = null;
+            //_server.ReceiveAction = null;
             Console.WriteLine("TestPolling:");
             Thread.Sleep(testTime);
             new Thread(() =>
@@ -169,7 +164,7 @@ namespace SimpleTCPTest
             SimpleConnection.StopAll();
             Console.WriteLine("stopped all");
             Thread.Sleep(testTime);
-            
+
 
             Console.WriteLine("\n");
 
@@ -180,7 +175,7 @@ namespace SimpleTCPTest
             var _udpClient2 = new SimpleUDP("255.255.255.255", 1808);
 
             var _udpms = 0;
-            _udpServer.ReceiveAction = aData =>
+            _udpServer.ReceiveAction += aData =>
             {
                 Console.WriteLine("UDP-Server: " + aData.Aggregate("", (current, v) => current + (char)v));
                 _udpms++;

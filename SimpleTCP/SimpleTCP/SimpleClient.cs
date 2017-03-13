@@ -33,15 +33,13 @@ namespace SimpleTCP
                 {
                     try
                     {
-                        var _action = ReceiveAction;
                         var _bytesReceived = stream.EndRead(state);
-                        if (_action != null)
-                        {
-                            var _message = new byte[_bytesReceived];
-                            for (var i = 0; i < _bytesReceived; i++)
-                                _message[i] = buffer[i];
-                            _action(_message);
-                        }
+
+                        var _message = new byte[_bytesReceived];
+                        for (var i = 0; i < _bytesReceived; i++)
+                            _message[i] = buffer[i];
+                        ReceivedData(_message);
+
 
                         StartReceive();
                     }

@@ -36,7 +36,7 @@ namespace SimpleTCP
             protected set { base.Connecting = value; }
         }
 
-        public Action<byte[], IPEndPoint> ReceiveActionWithEndPoint;
+        public event Action<byte[], IPEndPoint> ReceiveActionWithEndPoint;
 
         private void DoAction(byte[] aData, IPEndPoint aEndPoint)
         {
@@ -46,10 +46,8 @@ namespace SimpleTCP
                 return;
             }
 
-            var _actionSimple = ReceiveAction;
+            ReceivedData(aData);
             var _actionEndPoint = ReceiveActionWithEndPoint;
-
-            if (_actionSimple != null) _actionSimple(aData);
             if (_actionEndPoint != null) _actionEndPoint(aData, aEndPoint);
         }
 
