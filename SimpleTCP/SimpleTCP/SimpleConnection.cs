@@ -42,29 +42,32 @@ namespace SimpleTCP
             if (aStateMachineGenerator == null || aSendAction == null) return default(T);
             lock (PollLocker)
             {
-                var _pollResetEvent = new ManualResetEvent(false);
-                var _manager = new StateMachineManager<T, byte>(aStateMachineGenerator);
-                var _pollReturn = default(T);
-
-                PollReceiveAction = aMessage =>
+                using (var _pollResetEvent = new ManualResetEvent(false))
                 {
+                    var _manager = new StateMachineManager<T, byte>(aStateMachineGenerator);
+                    var _pollReturn = default(T);
 
-                    var _list = _manager.ApplyObjects(aMessage);
-                    if (_list.Count <= 0) return;
-                    _pollReturn = _list[0];
-                    _pollResetEvent.Set();
-                };
+                    PollReceiveAction = aMessage =>
+                    {
 
-                isPolling = true;
-                if (!aSendAction(aData))
-                {
-                    var _handler = MessageHandler; if (_handler != null) _handler("Couldn't send Polling Message");
+                        var _list = _manager.ApplyObjects(aMessage);
+                        if (_list.Count <= 0) return;
+                        _pollReturn = _list[0];
+                        _pollResetEvent.Set();
+                    };
+
+                    isPolling = true;
+                    if (!aSendAction(aData))
+                    {
+                        var _handler = MessageHandler;
+                        if (_handler != null) _handler("Couldn't send Polling Message");
+                        isPolling = false;
+                        return default(T);
+                    }
+                    _pollResetEvent.WaitOne(aTimeout);
                     isPolling = false;
-                    return default(T);
+                    return _pollReturn;
                 }
-                _pollResetEvent.WaitOne(aTimeout);
-                isPolling = false;
-                return _pollReturn;
             }
         }
 
