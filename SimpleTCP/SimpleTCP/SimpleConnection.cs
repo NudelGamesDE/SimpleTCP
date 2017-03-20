@@ -6,7 +6,7 @@ namespace SimpleTCP
 {
     public abstract class SimpleConnection
     {
-        public const string Version = "1.4.6";
+        public const string Version = "1.4.7";
 
         public static Action<string> MessageHandler;
         public static Action<Exception> ExceptionHandler;
